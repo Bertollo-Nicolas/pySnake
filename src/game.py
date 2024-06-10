@@ -4,6 +4,7 @@ from config.settings import GRID_ROWS
 from src.grid import Grid
 from src.fruit import Fruit
 from src.snake import Snake
+import logging
 
 class Game:
     def __init__(self, screen: Surface) -> None:
@@ -13,10 +14,12 @@ class Game:
         self.fruit = Fruit(self.grid)
         self.generate_new_fruit()
         self.game_is_over = False
+        logging.info("Game initialized")
 
     def generate_new_fruit(self):
         self.fruit.set_position()
         self.snake.set_fruit_position(self.fruit.position)
+        logging.info(f"New fruit generated at {self.fruit.position}")
 
     def update(self, move=None):
         if move:
@@ -26,9 +29,11 @@ class Game:
             if self.snake.fruit_eaten:
                 self.generate_new_fruit()
                 self.snake.fruit_eaten = False
+                logging.info(f"Fruit eaten, score: {self.snake.point}")
             if self.snake.game_state:
                 self.game_is_over = True
                 self.game_over()
+                logging.info("Game over triggered")
 
     def draw(self) -> None:
         self.grid.draw(self.screen)
@@ -42,11 +47,8 @@ class Game:
         game_over_rect.center = (self.screen.get_width() // 2, self.screen.get_height() // 2)
         self.screen.blit(game_over_surface, game_over_rect)
         pygame.display.update()
-        while True:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-    
+        logging.info(f"Game Over screen displayed with score {self.snake.point}")
+        pygame.time.wait(2000)  # Wait for 2 seconds before continuing
+
     def get_score(self):
         return self.snake.point
